@@ -16,7 +16,7 @@ import (
 type Employee struct {
 	ID    uint64 `json:"id,omitempty"`
 	Name  string `json:"name,omitempty" gorm:"not null;uniqueIndex"`
-	Title string `json:"title,omitempty" gorm:"not null;index"`
+	Title string `json:"title,omitempty" gorm:"not null;index;size:191"`
 
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"index"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`

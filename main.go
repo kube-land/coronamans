@@ -74,7 +74,7 @@ func migrate() {
 	db.AutoMigrate(&Attendance{}, &Employee{})
 	db.Exec("ALTER DATABASE corona CHARACTER SET utf8 COLLATE utf8_general_ci;")
 	db.Exec("ALTER TABLE employees CHARACTER SET utf8 COLLATE utf8_general_ci;")
-	db.Exec("ALTER TABLE name DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci")
+	db.Exec("ALTER TABLE attendances DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci")
 	startID := time.Now().Unix()
 	query := fmt.Sprintf("CREATE SEQUENCE employee_serial INCREMENT 13 START %d", startID)
 	db.Exec(query)
