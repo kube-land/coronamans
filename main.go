@@ -40,9 +40,9 @@ func main() {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	jwks := "https://dev-3tlmm4hu.eu.auth0.com/.well-known/jwks.json"
-	audience := "https://coronamans.pharmatics.io"
-	issuer := "https://dev-3tlmm4hu.eu.auth0.com/"
+	jwks := "https://coronamans.auth0.com/.well-known/jwks.json"
+	audience := "https://coronamans.pharmatics.io:8443"
+	issuer := "https://coronamans.eu.auth0.com/"
 
 	corsSpec := CORSOpts{
 		AllowedOriginPatterns: []string{"http://localhost:4200"},
