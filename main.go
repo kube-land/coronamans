@@ -40,7 +40,7 @@ func main() {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	jwks := "https://coronamans.auth0.com/.well-known/jwks.json"
+	jwks := "https://coronamans.eu.auth0.com/.well-known/jwks.json"
 	audience := "https://coronamans.pharmatics.io:8443"
 	issuer := "https://coronamans.eu.auth0.com/"
 
