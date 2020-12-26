@@ -34,7 +34,7 @@ func main() {
 		if r.Header.Get("Access-Control-Request-Method") != "" {
 			header := w.Header()
 			header.Set("Access-Control-Allow-Methods", r.Header.Get("Allow"))
-			header.Set("Access-Control-Allow-Origin", "http://localhost:4200")
+			header.Set("Access-Control-Allow-Origin", "http://localhost:4200, https://coronamans.pharmatics.io")
 			header.Set("Access-Control-Allow-Headers", "Authorization, Accept, Content-Type, Content-Length, Accept-Encoding")
 		}
 		w.WriteHeader(http.StatusNoContent)
@@ -45,7 +45,7 @@ func main() {
 	issuer := "https://coronamans.eu.auth0.com/"
 
 	corsSpec := CORSOpts{
-		AllowedOriginPatterns: []string{"http://localhost:4200"},
+		AllowedOriginPatterns: []string{"http://localhost:4200", "https://coronamans.pharmatics.io"},
 		AllowedMethods:        []string{"GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"},
 	}
 
