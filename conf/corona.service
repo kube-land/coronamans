@@ -1,0 +1,11 @@
+[Unit]
+Description=corona
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+ExecStart=/usr/local/bin/corona
+
+[Install]
+WantedBy=multi-user.target

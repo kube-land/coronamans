@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
-
-	"github.com/julienschmidt/httprouter"
-
-	//"github.com/boombuler/barcode/pdf417"
 	"errors"
+	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
 )
 
