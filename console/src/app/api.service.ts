@@ -10,10 +10,13 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   ping$(): Observable<any> {
-    console.log(config.apiUri);
     return this.http.get(`${config.apiUri}/employees`);
   }
 
-  
+  getEmployee$(id: string): Observable<any> {
+    return this.http.get(`${config.apiUri}/employee/${id}`);
+  }
+
+
 
 }
