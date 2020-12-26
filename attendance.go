@@ -1,20 +1,17 @@
 package main
 
 import (
-	"net/http"
-
-	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
+	"net/http"
 	"time"
-
-	"errors"
-
-	"io"
 )
 
 type Attendance struct {
 	Barcode uint64 `json:"barcode,omitempty" gorm:"index"`
+	Name    string `json:"name,omitempty" gorm:"not null;size:191"`
 
 	Duration string
 
@@ -22,101 +19,114 @@ type Attendance struct {
 	Checkout  time.Time `json:"checkout,omitempty" gorm:"index"`
 }
 
-type CheckStatus struct {
-	Attendance `json:",inline"`
-
-	Name  string
-	Title string
-}
-
-type ReportItem struct {
-	Barcode   uint64
-	Name      string
-	Title     string
-	Duration  string
-	Intervals int
-}
-
 func Check(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var e Employee
 	barcode := ps.ByName("barcode")
+	var employee Employee
 
-	err := db.First(&e, barcode).Error
+	err := db.First(&employee, barcode).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		w.WriteHeader(http.StatusNotFound)
-		io.WriteString(w, "Not found\n")
-		return
-	}
-
-	var a Attendance
-	a.Barcode = e.ID
-	a.Duration = "0"
-
-	err = db.Where(&Attendance{Barcode: e.ID, Duration: "0"}).First(&a).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		db.Create(&a)
-		respJson, err := json.Marshal(a)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		status := Status{
+			Status:  StatusFailure,
+			Message: "Employee not found",
+			Code:    http.StatusNotFound,
 		}
-		w.Write(respJson)
-		w.WriteHeader(200)
+		ResponseJSON(status, w, http.StatusNotFound)
 		return
 	}
 
-	a.Checkout = time.Now()
-	a.Duration = fmtDuration(a.Checkout.Sub(a.CreatedAt))
-	if a.Duration == "00:00" {
-		db.Where(&Attendance{Barcode: e.ID, Duration: "0"}).Delete(&a)
-		w.WriteHeader(204)
-		return
-	} else {
-		db.Model(&a).Where(&Attendance{Barcode: e.ID, Duration: "0"}).Updates(a)
-		respJson, err := json.Marshal(a)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+	var attendance Attendance
+	attendance.Barcode = employee.ID
+	attendance.Name = employee.Name
+	attendance.Duration = "0"
+
+	// no record with duration zero (no check in)
+	if err := db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).First(&attendance).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			db.Create(&attendance)
+			employee.Status = true
+			db.Save(&employee)
 		}
-		w.Write(respJson)
-		w.WriteHeader(200)
+	} else { // in shift
+		attendance.Checkout = time.Now()
+		duration := fmtDuration(attendance.Checkout.Sub(attendance.CreatedAt))
+
+		employee.Status = false
+		db.Save(&employee)
+
+		if duration == "00:00" { // undo if checked in by mistake
+			db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Delete(&attendance)
+			w.WriteHeader(204)
+			return
+		} else { // check out the user
+			attendance.Duration = duration
+			db.Model(&attendance).Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Updates(attendance)
+		}
 	}
+
+	ResponseJSON(attendance, w, 200)
 }
 
-func GetStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var e Employee
-	barcode := ps.ByName("barcode")
-
-	err := db.First(&e, barcode).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		w.WriteHeader(http.StatusNotFound)
-		io.WriteString(w, "Not found\n")
-		return
-	}
-
-	var a Attendance
-	a.Barcode = e.ID
-	a.Duration = "0"
-
-	err = db.Where(&Attendance{Barcode: e.ID, Duration: "0"}).First(&a).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		w.WriteHeader(http.StatusNotFound)
-		io.WriteString(w, "Not found\n")
-		return
-	}
-
-	var cs CheckStatus
-	db.Model(&Attendance{}).Select("attendances.*, employees.name, employees.title").Where(&Attendance{Barcode: e.ID, Duration: "0"}).Joins("left join employees on employees.id = attendances.barcode").Scan(&cs)
-
-	respJson, err := json.Marshal(cs)
+func Report(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	start, end, err := parsePeriod(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		status := Status{
+			Status:  StatusFailure,
+			Message: "Error parsing time period of query",
+			Code:    http.StatusInternalServerError,
+			Details: err.Error(),
+		}
+		ResponseJSON(status, w, http.StatusInternalServerError)
 		return
 	}
-	w.Write(respJson)
-	w.WriteHeader(200)
+
+	attendances := []Attendance{}
+
+	db.Model(&Attendance{}).
+		Where("attendances.checkout < ? and attendances.checkout > ?", end, start).
+		Scan(&attendances)
+
+	ResponseJSON(attendances, w, 200)
 }
 
-func Generate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	start, end, err := parsePeriod(r)
+	if err != nil {
+		status := Status{
+			Status:  StatusFailure,
+			Message: "Error parsing time period of query",
+			Code:    http.StatusInternalServerError,
+			Details: err.Error(),
+		}
+		ResponseJSON(status, w, http.StatusInternalServerError)
+		return
+	}
 
+	attendances := []Attendance{}
+
+	db.Model(&Attendance{}).
+		Where("attendances.checkout < ? and attendances.checkout > ?", end, start).
+		Select("barcode, name, SEC_TO_TIME(SUM(TIME_TO_SEC(duration))) as duration").
+		Group("barcode").
+		Scan(&attendances)
+
+	ResponseJSON(attendances, w, 200)
+}
+
+func parsePeriod(r *http.Request) (*time.Time, *time.Time, error) {
+	layout := "2006-01-02T15:04:05"
+	eet, _ := time.LoadLocation("EET")
+
+	start := r.URL.Query().Get("start")
+	tStart, err := time.ParseInLocation(layout, start, eet)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Couldn't parse start time: %v", err)
+	}
+
+	end := r.URL.Query().Get("end")
+	tEnd, err := time.ParseInLocation(layout, end, eet)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Couldn't parse end time: %v", err)
+	}
+
+	return &tStart, &tEnd, nil
 }

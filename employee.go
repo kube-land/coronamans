@@ -1,19 +1,19 @@
 package main
 
 import (
-	//"fmt"
 	"encoding/json"
-	"net/http"
-	"time"
 	"errors"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
+	"net/http"
+	"time"
 )
 
 type Employee struct {
-	ID    uint64 `json:"id,omitempty"`
-	Name  string `json:"name,omitempty" gorm:"not null;uniqueIndex;size:191"`
-	Title string `json:"title,omitempty" gorm:"not null;index"`
+	ID     uint64 `json:"id,omitempty"`
+	Name   string `json:"name,omitempty" gorm:"not null;uniqueIndex;size:191"`
+	Title  string `json:"title,omitempty" gorm:"not null;index"`
+	Status bool   `json:"status" gorm:"not null"`
 
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"index"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
@@ -62,6 +62,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	e.ID = getNewEmployeeID()
+	e.Status = false
 
 	if err := db.Create(&e).Error; err != nil {
 		status := Status{
@@ -90,18 +91,17 @@ func GetEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			}
 			ResponseJSON(status, w, http.StatusNotFound)
 			return
+		} else {
+			status := Status{
+				Status:  StatusFailure,
+				Message: "Error fetching employee",
+				Code:    http.StatusInternalServerError,
+				Details: err,
+			}
+			ResponseJSON(status, w, http.StatusInternalServerError)
+			return
 		}
-	} else {
-		status := Status{
-			Status:  StatusFailure,
-			Message: "Error fetching employee",
-			Code:    http.StatusInternalServerError,
-			Details: err,
-		}
-		ResponseJSON(status, w, http.StatusInternalServerError)
-		return
 	}
-
 	ResponseJSON(e, w, 200)
 }
 

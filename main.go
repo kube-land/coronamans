@@ -5,9 +5,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
-	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,8 +15,6 @@ import (
 
 var db *gorm.DB
 var regex *regexp.Regexp
-
-
 
 func main() {
 
@@ -70,9 +68,10 @@ func main() {
 	router.DELETE("/employee/:barcode", chain.Then(DeleteEmployee))
 
 	router.POST("/check/:barcode", chain.Then(Check))
-	router.GET("/status/:barcode", chain.Then(GetStatus))
 
-	router.GET("/generate.png", chain.Then(Generate))
+	// reports
+	router.GET("/report", chain.Then(Report))
+	router.GET("/aggregate", chain.Then(Aggregate))
 
 	log.Printf("start web server :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
