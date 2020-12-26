@@ -10,7 +10,7 @@
     "module": "es2020",
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es5",
+    "target": "es5", // changed form es2015 to es5
     "typeRoots": [
       "node_modules/@types"
     ],
