@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"time"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,7 +16,14 @@ import (
 var db *gorm.DB
 var regex *regexp.Regexp
 
+
+
 func main() {
+
+	allowedOrigin := os.Getenv("ACCESS_CONTROL_ALLOW_OROGIN")
+	if allowedOrigin == "" {
+		allowedOrigin = "http://localhost:4200"
+	}
 
 	regex = regexp.MustCompile(`(^[0-9]+)\.png$`)
 
@@ -34,7 +42,7 @@ func main() {
 		if r.Header.Get("Access-Control-Request-Method") != "" {
 			header := w.Header()
 			header.Set("Access-Control-Allow-Methods", r.Header.Get("Allow"))
-			header.Set("Access-Control-Allow-Origin", "http://localhost:4200, https://coronamans.pharmatics.io")
+			header.Set("Access-Control-Allow-Origin", allowedOrigin)
 			header.Set("Access-Control-Allow-Headers", "Authorization, Accept, Content-Type, Content-Length, Accept-Encoding")
 		}
 		w.WriteHeader(http.StatusNoContent)
@@ -45,7 +53,7 @@ func main() {
 	issuer := "https://coronamans.eu.auth0.com/"
 
 	corsSpec := CORSOpts{
-		AllowedOriginPatterns: []string{"http://localhost:4200", "https://coronamans.pharmatics.io"},
+		AllowedOriginPatterns: []string{allowedOrigin},
 		AllowedMethods:        []string{"GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS"},
 	}
 
