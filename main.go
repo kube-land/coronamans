@@ -20,7 +20,7 @@ var regex *regexp.Regexp
 
 func main() {
 
-	allowedOrigin := os.Getenv("ACCESS_CONTROL_ALLOW_OROGIN")
+	allowedOrigin := os.Getenv("ACCESS_CONTROL_ALLOW_ORIGIN")
 	if allowedOrigin == "" {
 		allowedOrigin = "http://localhost:4200"
 	}

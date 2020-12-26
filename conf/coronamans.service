@@ -2,6 +2,7 @@
 Description=coronamans
 
 [Service]
+Environment=ACCESS_CONTROL_ALLOW_ORIGIN=https://coronamans.pharmatics.io
 Type=simple
 Restart=always
 RestartSec=5s
