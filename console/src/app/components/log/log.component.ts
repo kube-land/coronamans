@@ -13,6 +13,9 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class LogComponent implements OnInit {
 
+  loading = true;
+
+  employeeID: string
   employee: any
   error: any
 
@@ -23,7 +26,18 @@ export class LogComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-  
+    this.api
+    .getEmployee$(this.employeeID)
+    .subscribe(
+      (res) => {
+        this.employee = res
+        this.loading = false
+      },
+      error => {
+        this.error = error
+        this.loading = false
+      }
+    );
   }
 
   logInOut() {

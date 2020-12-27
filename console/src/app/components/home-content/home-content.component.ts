@@ -8,8 +8,6 @@ import { NgbModal, NgbActiveModal, ModalDismissReasons } from '@ng-bootstrap/ng-
 
 import { LogComponent } from '../log/log.component';
 
-import { ApiService } from 'src/app/api.service';
-
 @Component({
   selector: 'app-home-content',
   templateUrl: './home-content.component.html',
@@ -26,7 +24,6 @@ export class HomeContentComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private modalService: NgbModal,
-    private api: ApiService,
     @Inject(DOCUMENT) private doc: Document
   ) {}
 
@@ -34,24 +31,8 @@ export class HomeContentComponent implements OnInit {
   }
 
   onSubmit() {
-    this.api
-    .getEmployee$(this.idForm.value.id)
-    .subscribe(
-      (res) => (
-        this.openModal(res, null)
-      ),
-      error => {
-        this.openModal(null, error)
-      }
-    );
-    
-    this.idForm.reset()
-  }
-
-  openModal(employee: any, error: any) {
     const modal = this.modalService.open(LogComponent, { size: 'lg', windowClass: 'modal-adaptive' });
-    modal.componentInstance.employee = employee
-    modal.componentInstance.error = error
-    //modal.result.then(() => {this.getUsers()})
+    modal.componentInstance.employeeID = this.idForm.value.id
+    this.idForm.reset()
   }
 }
