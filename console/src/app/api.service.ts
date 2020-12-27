@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import * as config from '../../auth_config.json';
 
+import {Employee} from './api.model';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,5 +23,8 @@ export class ApiService {
     return this.http.post(`${config.apiUri}/log/${id}`, {}, {observe: 'response'});
   }
 
+  createEmployee$(employee: Employee): Observable<Employee> {
+    return this.http.post<Employee>(`${config.apiUri}/employee`, employee, {}); 
+  }
 
 }

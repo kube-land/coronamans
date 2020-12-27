@@ -23,15 +23,25 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	barcode := ps.ByName("barcode")
 	var employee Employee
 
-	err := db.First(&employee, "id = ?", barcode).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		status := Status{
-			Status:  StatusFailure,
-			Message: "Employee not found",
-			Code:    http.StatusNotFound,
+	if err := db.First(&employee, "id = ?", barcode).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status := Status{
+				Status:  StatusFailure,
+				Message: "Employee not found!",
+				Code:    http.StatusNotFound,
+			}
+			ResponseJSON(status, w, http.StatusNotFound)
+			return
+		} else {
+			status := Status{
+				Status:  StatusFailure,
+				Message: fmt.Sprintf("Couldn't fetch employee: %v", err.Error()),
+				Code:    http.StatusInternalServerError,
+				Details: err,
+			}
+			ResponseJSON(status, w, http.StatusInternalServerError)
+			return
 		}
-		ResponseJSON(status, w, http.StatusNotFound)
-		return
 	}
 
 	var attendance Attendance
@@ -43,7 +53,7 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if err := db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).First(&attendance).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			db.Create(&attendance)
-			employee.Status = true
+			employee.LoggedIn = true
 			db.Save(&employee)
 		} else {
 			status := Status{
@@ -59,7 +69,7 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		attendance.Logout = time.Now()
 		duration := fmtDuration(attendance.Logout.Sub(attendance.CreatedAt))
 
-		employee.Status = false
+		employee.LoggedIn = false
 		db.Save(&employee)
 
 		if duration == "00:00" { // undo if logged in in by mistake

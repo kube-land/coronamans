@@ -12,7 +12,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { LoadingComponent } from './components/loading/loading.component';
-import { ExternalApiComponent } from './pages/external-api/external-api.component';
+import { EmployeeComponent } from './pages/employee/employee.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthHttpInterceptor, AuthModule } from '@auth0/auth0-angular';
 import { environment as env } from '../environments/environment';
@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { HomeContentComponent } from './components/home-content/home-content.component';
+import { EmployeeAddComponent } from './components/employee-add/employee-add.component';
 
 @NgModule({
   declarations: [
@@ -33,9 +34,10 @@ import { HomeContentComponent } from './components/home-content/home-content.com
     NavBarComponent,
     FooterComponent,
     LoadingComponent,
-    ExternalApiComponent,
+    EmployeeComponent,
     LogComponent,
     HomeContentComponent,
+    EmployeeAddComponent,
   ],
   imports: [
     BrowserModule,

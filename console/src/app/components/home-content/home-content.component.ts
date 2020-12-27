@@ -31,7 +31,7 @@ export class HomeContentComponent implements OnInit {
   }
 
   onSubmit() {
-    const modal = this.modalService.open(LogComponent, { size: 'lg', windowClass: 'modal-adaptive' });
+    const modal = this.modalService.open(LogComponent, { size: 'md', windowClass: 'modal-adaptive' });
     modal.componentInstance.employeeID = this.idForm.value.id
     this.idForm.reset()
   }

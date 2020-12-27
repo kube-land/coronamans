@@ -8,13 +8,14 @@ import (
 	"net/http"
 	"time"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 )
 
 type Employee struct {
-	ID     uint64 `json:"id,omitempty"`
-	Name   string `json:"name,omitempty" gorm:"not null;uniqueIndex;size:191"`
-	Title  string `json:"title,omitempty" gorm:"not null;index"`
-	Status bool   `json:"status" gorm:"not null"`
+	ID       uint64 `json:"id,omitempty"`
+	Name     string `json:"name,omitempty" gorm:"not null;uniqueIndex;size:191"`
+	Title    string `json:"title,omitempty" gorm:"not null;index"`
+	LoggedIn bool   `json:"loggedIn" gorm:"not null"`
 
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"index"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
@@ -63,9 +64,22 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}
 
 	e.ID = getNewEmployeeID()
-	e.Status = false
+	e.LoggedIn = false
 
 	if err := db.Create(&e).Error; err != nil {
+		if driverErr, ok := err.(*mysql.MySQLError); ok {
+			if driverErr.Number == 1062 {
+				fmt.Println(driverErr.Message)
+				status := Status{
+					Status:  StatusFailure,
+					Message: fmt.Sprintf("Employee with name '%s' already exists", e.Name),
+					Code:    http.StatusInternalServerError,
+					Details: err,
+				}
+				ResponseJSON(status, w, http.StatusInternalServerError)
+				return
+			}
+		}
 		status := Status{
 			Status:  StatusFailure,
 			Message: fmt.Sprintf("Couldn't create employee: %v", err.Error()),
@@ -82,12 +96,14 @@ func GetEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	barcode := ps.ByName("barcode")
 	var e Employee
 
+	fmt.Println(barcode)
+
 	if err := db.First(&e, "id = ?", barcode).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			status := Status{
 				Status:  StatusFailure,
-				Message: "Employee not found",
+				Message: "Employee not found!",
 				Code:    http.StatusNotFound,
 			}
 			ResponseJSON(status, w, http.StatusNotFound)
