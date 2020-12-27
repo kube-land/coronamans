@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"time"
+	"fmt"
 )
 
 type Employee struct {
@@ -67,7 +68,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	if err := db.Create(&e).Error; err != nil {
 		status := Status{
 			Status:  StatusFailure,
-			Message: "Error creating employee",
+			Message: fmt.Sprintf("Couldn't create employee: %v", err.Error()),
 			Code:    http.StatusInternalServerError,
 			Details: err,
 		}
@@ -81,7 +82,7 @@ func GetEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	barcode := ps.ByName("barcode")
 	var e Employee
 
-	if err := db.First(&e, barcode).Error; err != nil {
+	if err := db.First(&e, "id = ?", barcode).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			status := Status{
@@ -94,7 +95,7 @@ func GetEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		} else {
 			status := Status{
 				Status:  StatusFailure,
-				Message: "Error fetching employee",
+				Message: fmt.Sprintf("Couldn't fetch employee: %v", err.Error()),
 				Code:    http.StatusInternalServerError,
 				Details: err,
 			}
@@ -110,7 +111,7 @@ func GetEmployees(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	if err := db.Find(&employees).Error; err != nil {
 		status := Status{
 			Status:  StatusFailure,
-			Message: "Error fetching employees",
+			Message: fmt.Sprintf("Couldn't fetch employees: %v", err.Error()),
 			Code:    http.StatusInternalServerError,
 			Details: err,
 		}
@@ -128,7 +129,7 @@ func DeleteEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	if err := db.Delete(&e, barcode).Error; err != nil {
 		status := Status{
 			Status:  StatusFailure,
-			Message: "Error deleteing employees",
+			Message: fmt.Sprintf("Couldn't delete employee: %v", err.Error()),
 			Code:    http.StatusInternalServerError,
 			Details: err,
 		}

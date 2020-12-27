@@ -11,8 +11,6 @@ import { HomeComponent } from './pages/home/home.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { HeroComponent } from './components/hero/hero.component';
-import { HomeContentComponent } from './components/home-content/home-content.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { ExternalApiComponent } from './pages/external-api/external-api.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -20,6 +18,12 @@ import { AuthHttpInterceptor, AuthModule } from '@auth0/auth0-angular';
 import { environment as env } from '../environments/environment';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LogComponent } from './components/log/log.component';
+
+import { CommonModule } from '@angular/common';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
+import { HomeContentComponent } from './components/home-content/home-content.component';
 
 @NgModule({
   declarations: [
@@ -28,10 +32,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ProfileComponent,
     NavBarComponent,
     FooterComponent,
-    HeroComponent,
-    HomeContentComponent,
     LoadingComponent,
     ExternalApiComponent,
+    LogComponent,
+    HomeContentComponent,
   ],
   imports: [
     BrowserModule,
@@ -48,7 +52,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     }),
     // Added for reactive forms
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+
+    CommonModule,
+    BrowserAnimationsModule, // required animations module
+    ToastrModule.forRoot(), // ToastrModule added
   ],
   providers: [
     {

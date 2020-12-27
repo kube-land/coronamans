@@ -67,7 +67,7 @@ func main() {
 	router.GET("/employees", chain.Then(GetEmployees))
 	router.DELETE("/employee/:barcode", chain.Then(DeleteEmployee))
 
-	router.POST("/check/:barcode", chain.Then(Check))
+	router.POST("/log/:barcode", chain.Then(LogInOut))
 
 	// reports
 	router.GET("/report", chain.Then(Report))

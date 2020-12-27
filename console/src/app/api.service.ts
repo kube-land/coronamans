@@ -17,6 +17,9 @@ export class ApiService {
     return this.http.get(`${config.apiUri}/employee/${id}`);
   }
 
+  logEmployee$(id: string): Observable<any> {
+    return this.http.post(`${config.apiUri}/log/${id}`, {}, {observe: 'response'});
+  }
 
 
 }

@@ -13,17 +13,17 @@ type Attendance struct {
 	Barcode uint64 `json:"barcode,omitempty" gorm:"index"`
 	Name    string `json:"name,omitempty" gorm:"not null;size:191"`
 
-	Duration string
+	Duration string `json:"duration,omitempty"`
 
 	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"index"`
-	Checkout  time.Time `json:"checkout,omitempty" gorm:"index"`
+	Logout    time.Time `json:"logout,omitempty" gorm:"index"`
 }
 
-func Check(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	barcode := ps.ByName("barcode")
 	var employee Employee
 
-	err := db.First(&employee, barcode).Error
+	err := db.First(&employee, "id = ?", barcode).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		status := Status{
 			Status:  StatusFailure,
@@ -39,25 +39,34 @@ func Check(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	attendance.Name = employee.Name
 	attendance.Duration = "0"
 
-	// no record with duration zero (no check in)
+	// no record with duration zero (no log in)
 	if err := db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).First(&attendance).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			db.Create(&attendance)
 			employee.Status = true
 			db.Save(&employee)
+		} else {
+			status := Status{
+				Status:  StatusFailure,
+				Message: fmt.Sprintf("Couldn't log in/out employee: %v", err.Error()),
+				Code:    http.StatusInternalServerError,
+				Details: err,
+			}
+			ResponseJSON(status, w, http.StatusInternalServerError)
+			return
 		}
 	} else { // in shift
-		attendance.Checkout = time.Now()
-		duration := fmtDuration(attendance.Checkout.Sub(attendance.CreatedAt))
+		attendance.Logout = time.Now()
+		duration := fmtDuration(attendance.Logout.Sub(attendance.CreatedAt))
 
 		employee.Status = false
 		db.Save(&employee)
 
-		if duration == "00:00" { // undo if checked in by mistake
+		if duration == "00:00" { // undo if logged in in by mistake
 			db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Delete(&attendance)
 			w.WriteHeader(204)
 			return
-		} else { // check out the user
+		} else { // log out the user
 			attendance.Duration = duration
 			db.Model(&attendance).Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Updates(attendance)
 		}
@@ -82,7 +91,7 @@ func Report(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	attendances := []Attendance{}
 
 	db.Model(&Attendance{}).
-		Where("attendances.checkout < ? and attendances.checkout > ?", end, start).
+		Where("attendances.logout < ? and attendances.logout > ?", end, start).
 		Scan(&attendances)
 
 	ResponseJSON(attendances, w, 200)
@@ -104,7 +113,7 @@ func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	attendances := []Attendance{}
 
 	db.Model(&Attendance{}).
-		Where("attendances.checkout < ? and attendances.checkout > ?", end, start).
+		Where("attendances.logout < ? and attendances.logout > ?", end, start).
 		Select("barcode, name, SEC_TO_TIME(SUM(TIME_TO_SEC(duration))) as duration").
 		Group("barcode").
 		Scan(&attendances)

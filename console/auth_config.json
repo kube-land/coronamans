@@ -2,6 +2,6 @@
   "domain": "coronamans.eu.auth0.com",
   "clientId": "3sc6ef4T7I5YeeNsHzqFnrspKfeFv0ck",
   "audience": "https://coronamans.pharmatics.io:8443",
-  "apiUri": "https://coronamans.pharmatics.io:8443",
+  "apiUri": "http://localhost:8080",
   "appUri": "http://localhost:4200"
 }
