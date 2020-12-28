@@ -19,6 +19,10 @@ export class ApiService {
     return this.http.get(`${config.apiUri}/employee/${id}`);
   }
 
+  getEmployees$(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${config.apiUri}/employees`);
+  }
+
   logEmployee$(id: string): Observable<any> {
     return this.http.post(`${config.apiUri}/log/${id}`, {}, {observe: 'response'});
   }

@@ -25,6 +25,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { HomeContentComponent } from './components/home-content/home-content.component';
 import { EmployeeAddComponent } from './components/employee-add/employee-add.component';
+import { ReportComponent } from './pages/report/report.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { EmployeeAddComponent } from './components/employee-add/employee-add.com
     LogComponent,
     HomeContentComponent,
     EmployeeAddComponent,
+    ReportComponent,
   ],
   imports: [
     BrowserModule,

@@ -3,12 +3,12 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/gorm"
 	"net/http"
 	"time"
-	"fmt"
-	"github.com/go-sql-driver/mysql"
 )
 
 type Employee struct {

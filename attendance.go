@@ -19,6 +19,12 @@ type Attendance struct {
 	Logout    time.Time `json:"logout,omitempty" gorm:"index"`
 }
 
+type AggregateItem struct {
+	Attendance `json:",inline"`
+
+	Count int64 `json:"count,omitempty"`
+}
+
 func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	barcode := ps.ByName("barcode")
 	var employee Employee
@@ -120,15 +126,15 @@ func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	attendances := []Attendance{}
+	aggregateItems := []AggregateItem{}
 
 	db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
-		Select("barcode, name, SEC_TO_TIME(SUM(TIME_TO_SEC(duration))) as duration").
+		Select("barcode, name, SEC_TO_TIME(SUM(TIME_TO_SEC(duration))) as duration, COUNT(name) as count").
 		Group("barcode").
-		Scan(&attendances)
+		Scan(&aggregateItems)
 
-	ResponseJSON(attendances, w, 200)
+	ResponseJSON(aggregateItems, w, 200)
 }
 
 func parsePeriod(r *http.Request) (*time.Time, *time.Time, error) {

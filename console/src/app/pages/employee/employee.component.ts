@@ -3,11 +3,13 @@ import { ApiService } from 'src/app/api.service';
 
 import { AuthService } from '@auth0/auth0-angular';
 import { DOCUMENT } from '@angular/common';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { NgbModal, NgbActiveModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { EmployeeAddComponent } from '../../components/employee-add/employee-add.component';
+
+import {Employee} from '../../api.model';
+
 
 @Component({
   selector: 'app-employee',
@@ -15,24 +17,33 @@ import { EmployeeAddComponent } from '../../components/employee-add/employee-add
   styleUrls: ['./employee.component.css'],
 })
 export class EmployeeComponent {
-  responseJson: string;
+
+  employees: Employee[]
 
   constructor(
     public auth: AuthService,
     private api: ApiService,
     private modalService: NgbModal,
     @Inject(DOCUMENT) private doc: Document
-  ) {}
+  ) {
 
-  pingApi() {
     this.api
-      .ping$()
-      .subscribe(
-        (res) => (this.responseJson = JSON.stringify(res, null, 2).trim())
-      );
+    .getEmployees$()
+    .subscribe(
+      (res) => {
+        console.log(res)
+        this.employees = res
+      },
+      error => {
+        console.log(error)
+      }
+    );
+
   }
 
   addEmployee() {
     const modal = this.modalService.open(EmployeeAddComponent, { size: 'md', windowClass: 'modal-adaptive' });
   }
+
+  updateFilter() {}
 }
