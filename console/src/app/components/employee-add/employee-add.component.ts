@@ -69,4 +69,12 @@ export class EmployeeAddComponent implements OnInit {
     var employee: Employee = this.employeeAddForm.value
     this.addEmployee(employee)
   }
+
+  totalText(id: string, name: string) {
+    let total = `${id} ${name}`
+    if (total.length > 41) {
+      total = total.slice(0, 38) + "..."
+    }
+    return total
+  }
 }

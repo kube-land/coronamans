@@ -28,11 +28,18 @@
       </div>
 
       <div *ngIf='createdEmployee' class="card text-center">
-        <div class="card-body">
+        <!--div class="card-body">
           <img src="{{barcodeImage}}" alt="{{createdEmployee?.id}}" width="256" height="128">
-        </div>
+        </div-->
+        <app-barcode bc-value="{{createdEmployee?.id}}"
+          bc-display-value="true"
+          bc-element-type="img"
+          bc-width="4"
+          bc-height="200"
+          bc-font-size="15"
+          bc-text="{{totalText(createdEmployee?.id, createdEmployee?.name)}}">
+        </app-barcode>
       </div>
-
     </div>
 
     <div class="modal-footer mt-1">

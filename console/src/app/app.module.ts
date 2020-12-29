@@ -26,6 +26,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { HomeContentComponent } from './components/home-content/home-content.component';
 import { EmployeeAddComponent } from './components/employee-add/employee-add.component';
 import { ReportComponent } from './pages/report/report.component';
+import { BarcodeComponent } from './components/barcode/barcode.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { ReportComponent } from './pages/report/report.component';
     HomeContentComponent,
     EmployeeAddComponent,
     ReportComponent,
+    BarcodeComponent,
   ],
   imports: [
     BrowserModule,
