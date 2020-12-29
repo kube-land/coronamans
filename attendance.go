@@ -130,7 +130,7 @@ func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
-		Select("barcode, name, SEC_TO_TIME(SUM(TIME_TO_SEC(duration))) as duration, COUNT(name) as count").
+		Select("barcode, name, SUBSTRING(SEC_TO_TIME(SUM(TIME_TO_SEC(duration))), 1, 5) as duration, COUNT(name) as count").
 		Group("barcode").
 		Scan(&aggregateItems)
 

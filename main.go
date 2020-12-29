@@ -39,7 +39,7 @@ func main() {
 	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Access-Control-Request-Method") != "" {
 			header := w.Header()
-			header.Set("Access-Control-Allow-Methods", r.Header.Get("Allow"))
+			header.Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
 			header.Set("Access-Control-Allow-Origin", allowedOrigin)
 			header.Set("Access-Control-Allow-Headers", "Authorization, Accept, Content-Type, Content-Length, Accept-Encoding")
 		}
