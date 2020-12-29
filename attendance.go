@@ -15,11 +15,11 @@ type Attendance struct {
 
 	Duration string `json:"duration,omitempty"`
 
-	CreatedAt time.Time `json:"createdAt,omitempty" gorm:"index"`
-	Logout    time.Time `json:"logout,omitempty" gorm:"index"`
+	CreatedAt *time.Time `json:"createdAt,omitempty" gorm:"index"`
+	Logout    *time.Time `json:"logout,omitempty" gorm:"index"`
 }
 
-type AggregateItem struct {
+type ReportItem struct {
 	Attendance `json:",inline"`
 
 	Count int64 `json:"count,omitempty"`
@@ -72,8 +72,9 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			return
 		}
 	} else { // in shift
-		attendance.Logout = time.Now()
-		duration := fmtDuration(attendance.Logout.Sub(attendance.CreatedAt))
+		now := time.Now()
+		attendance.Logout = &now
+		duration := fmtDuration(attendance.Logout.Sub(*attendance.CreatedAt))
 
 		employee.LoggedIn = false
 		db.Save(&employee)
@@ -104,13 +105,13 @@ func Historical(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	aggregateItems := []AggregateItem{}
+	reportItems := []ReportItem{}
 
 	db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
-		Scan(&aggregateItems)
+		Scan(&reportItems)
 
-	ResponseJSON(aggregateItems, w, 200)
+	ResponseJSON(reportItems, w, 200)
 }
 
 func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -126,15 +127,15 @@ func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	aggregateItems := []AggregateItem{}
+	reportItems := []ReportItem{}
 
 	db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
 		Select("barcode, name, SUBSTRING(SEC_TO_TIME(SUM(TIME_TO_SEC(duration))), 1, 5) as duration, COUNT(name) as count").
 		Group("barcode").
-		Scan(&aggregateItems)
+		Scan(&reportItems)
 
-	ResponseJSON(aggregateItems, w, 200)
+	ResponseJSON(reportItems, w, 200)
 }
 
 func parsePeriod(r *http.Request) (*time.Time, *time.Time, error) {
