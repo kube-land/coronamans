@@ -7,8 +7,8 @@
         
         <form [formGroup]="idForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label class="form-control-lg mb-2" for="employeeID">Enter employee ID or scan the barcode</label>
-            <input formControlName="id" class="form-control form-control-lg" type="text" autocomplete="off" id="employeeID" placeholder="Employee ID" autofocus>
+            <label class="form-control-lg" for="employeeID">Enter employee ID or scan the barcode</label>
+            <input formControlName="id" class="form-control form-control-lg mt-2" type="text" autocomplete="off" id="employeeID" placeholder="Employee ID" autofocus>
           </div>
           <button [disabled]="!idForm.valid" type="submit" class="btn btn-danger btn-lg mb-2">Log In/Out</button>
         </form>
