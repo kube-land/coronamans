@@ -28,6 +28,9 @@ import { EmployeeAddComponent } from './components/employee-add/employee-add.com
 import { ReportComponent } from './pages/report/report.component';
 import { BarcodeComponent } from './components/barcode/barcode.component';
 
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { PrintDirective } from './components/print/print.directive';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,6 +45,7 @@ import { BarcodeComponent } from './components/barcode/barcode.component';
     EmployeeAddComponent,
     ReportComponent,
     BarcodeComponent,
+    PrintDirective,
   ],
   imports: [
     BrowserModule,
@@ -59,7 +63,7 @@ import { BarcodeComponent } from './components/barcode/barcode.component';
     // Added for reactive forms
     FormsModule,
     ReactiveFormsModule,
-
+    NgxDatatableModule,
     CommonModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
