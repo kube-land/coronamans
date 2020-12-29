@@ -91,7 +91,7 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	ResponseJSON(attendance, w, 200)
 }
 
-func Report(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Historical(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	start, end, err := parsePeriod(r)
 	if err != nil {
 		status := Status{
@@ -104,13 +104,13 @@ func Report(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	attendances := []Attendance{}
+	aggregateItems := []AggregateItem{}
 
 	db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
-		Scan(&attendances)
+		Scan(&aggregateItems)
 
-	ResponseJSON(attendances, w, 200)
+	ResponseJSON(aggregateItems, w, 200)
 }
 
 func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -138,7 +138,7 @@ func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 func parsePeriod(r *http.Request) (*time.Time, *time.Time, error) {
-	layout := "2006-01-02T15:04:05"
+	layout := "2006-01-02T15:04:05Z"
 	eet, _ := time.LoadLocation("EET")
 
 	start := r.URL.Query().Get("start")

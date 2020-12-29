@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { EmployeeComponent } from './pages/employee/employee.component';
+import { ReportComponent } from './pages/report/report.component';
 import { AuthGuard } from '@auth0/auth0-angular';
 
 const routes: Routes = [
@@ -14,6 +15,11 @@ const routes: Routes = [
   {
     path: 'employee',
     component: EmployeeComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'report',
+    component: ReportComponent,
     canActivate: [AuthGuard],
   },
   {

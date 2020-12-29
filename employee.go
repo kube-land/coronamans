@@ -69,7 +69,6 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	if err := db.Create(&e).Error; err != nil {
 		if driverErr, ok := err.(*mysql.MySQLError); ok {
 			if driverErr.Number == 1062 {
-				fmt.Println(driverErr.Message)
 				status := Status{
 					Status:  StatusFailure,
 					Message: fmt.Sprintf("Employee with name '%s' already exists", e.Name),
@@ -95,8 +94,6 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 func GetEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	barcode := ps.ByName("barcode")
 	var e Employee
-
-	fmt.Println(barcode)
 
 	if err := db.First(&e, "id = ?", barcode).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

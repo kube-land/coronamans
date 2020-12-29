@@ -70,7 +70,7 @@ func main() {
 	router.POST("/log/:barcode", chain.Then(LogInOut))
 
 	// reports
-	router.GET("/report", chain.Then(Report))
+	router.GET("/historical", chain.Then(Historical))
 	router.GET("/aggregate", chain.Then(Aggregate))
 
 	log.Printf("start web server :8080")
