@@ -35,7 +35,7 @@
                         <tr>
                             <td>{{employee?.id}}</td>
                             <td>{{employee?.name}}</td>
-                            <td *ngIf='!error && employee?.loggedIn'>{{employee?.updatedAt}}</td>
+                            <td *ngIf='!error && employee?.loggedIn'>{{parseDate(employee?.updatedAt)}}</td>
                         </tr>
                     </table>
     

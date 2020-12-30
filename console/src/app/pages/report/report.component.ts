@@ -6,12 +6,16 @@ import {Employee, ReportItem} from '../../api.model';
 import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import {parseDate} from '../../util'
+
 @Component({
   selector: 'app-report',
   templateUrl: './report.component.html',
   styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
+
+  parseDate = parseDate
 
   now = new Date()
   fromTime = {hour: this.now.getHours(), minute: this.now.getMinutes()};
@@ -102,15 +106,12 @@ export class ReportComponent implements OnInit {
       return d.name.toLowerCase().indexOf(val) !== -1;
     })));
 
-    console.log("hhhhgh", temp)
-
     // update the rows
     this.report$ = temp;
   }
 
-  parseDate(date: string) {
-    let d = new Date(date)
-    return `${d.toLocaleString()}`
+  onSelect(event: any) {
+    this.generate()
   }
 
 }

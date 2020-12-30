@@ -76,7 +76,7 @@
                 <div class="col-lg-3 col-md-5 col-sm-5">
                     <div class="form-group">
                         <label for="projectinput5" class="sr-only">Interested in</label>
-                        <select [(ngModel)]="reportType" id="projectinput5" name="interested" class="form-control">
+                        <select (change)="onSelect($event)" [(ngModel)]="reportType" id="projectinput5" name="interested" class="form-control">
                             <option value="none" selected="" disabled="">Select Report Type</option>
                             <option value="historical" >Historical</option>
                             <option value="aggregate">Aggregated</option>
@@ -107,7 +107,8 @@
                   <ngx-datatable class="bootstrap core-bootstrap"
                     [rows]="report$ | async" 
                     [columnMode]="'force'" [footerHeight]="30" [footerHeight]="50" [rowHeight]="'auto'"
-                    [scrollbarV]="false" [messages]="{emptyMessage: '', totalMessage: ''}" [limit]="1000">
+                    [scrollbarV]="false" [messages]="{emptyMessage: '', totalMessage: ''}" [limit]="1000"
+                    [scrollbarH]="true">
 
                     <ngx-datatable-column name="ID" [sortable]="true" prop="barcode">
                       <ng-template let-row="row" ngx-datatable-cell-template>

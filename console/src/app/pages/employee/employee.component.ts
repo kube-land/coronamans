@@ -10,6 +10,8 @@ import { EmployeeAddComponent } from '../../components/employee-add/employee-add
 
 import {Employee} from '../../api.model';
 
+import {parseDate} from '../../util'
+
 
 @Component({
   selector: 'app-employee',
@@ -18,7 +20,10 @@ import {Employee} from '../../api.model';
 })
 export class EmployeeComponent {
 
+  parseDate = parseDate
+
   employees: Employee[]
+  employeesTemp: Employee[]
 
   loading: boolean = true
 
@@ -43,6 +48,7 @@ export class EmployeeComponent {
       (res) => {
         this.employees = res
         this.totalEmployees = res.length;
+        this.employeesTemp = [...res];
 
         let logged = 0 
         for (let employee of res) {
@@ -70,11 +76,14 @@ export class EmployeeComponent {
   }
 
   updateFilter(event) {
-    
-  }
+    const val = event.target.value.toLowerCase();
+    const temp = this.employeesTemp.filter(function (d) {
+      return d.name.toLowerCase().indexOf(val) !== -1 ||
+        d.id.toString().indexOf(val) !== -1 ||
+        d.title.toLowerCase().indexOf(val) !== -1;
+    });
 
-  parseDate(date: string) {
-    let d = new Date(date)
-    return `${d.toLocaleString()}`
+    // update the rows
+    this.employees = temp;
   }
 }

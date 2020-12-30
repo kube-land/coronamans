@@ -69,8 +69,8 @@ export class EmployeeAddComponent implements OnInit {
 
   totalText(id: string, name: string) {
     let total = `${id} ${name}`
-    if (total.length > 41) {
-      total = total.slice(0, 38) + "..."
+    if (total.length > 22) {
+      total = total.slice(0, 21) + "."
     }
     return total
   }

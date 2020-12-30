@@ -6,12 +6,16 @@ import { ApiService } from 'src/app/api.service';
 
 import { ToastrService } from 'ngx-toastr';
 
+import {parseDate} from '../../util'
+
 @Component({
   selector: 'app-log',
   templateUrl: './log.component.html',
   styleUrls: ['./log.component.css']
 })
 export class LogComponent implements OnInit {
+
+  parseDate = parseDate
 
   loading = true;
 
