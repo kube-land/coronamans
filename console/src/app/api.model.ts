@@ -6,3 +6,21 @@ export interface Employee {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface Attendance {
+    barcode: number;
+    name: string;
+    duration: string;
+    createdAt: Date;
+    logout: Date;
+}
+
+export interface ReportItem {
+	barcode: number;
+    name: string;
+    duration: string;
+    createdAt: Date;
+    logout: Date;
+
+	count: number
+}

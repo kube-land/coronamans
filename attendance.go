@@ -107,9 +107,18 @@ func Historical(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	reportItems := []ReportItem{}
 
-	db.Model(&Attendance{}).
+	if err := db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
-		Scan(&reportItems)
+		Scan(&reportItems).Error; err != nil {
+			status := Status{
+				Status:  StatusFailure,
+				Message: fmt.Sprintf("Error generating historical report: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+				Details: err,
+			}
+			ResponseJSON(status, w, http.StatusInternalServerError)
+			return
+		}
 
 	ResponseJSON(reportItems, w, 200)
 }
@@ -129,11 +138,20 @@ func Aggregate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	reportItems := []ReportItem{}
 
-	db.Model(&Attendance{}).
+	if err := db.Model(&Attendance{}).
 		Where("attendances.logout < ? and attendances.logout > ?", end, start).
 		Select("barcode, name, SUBSTRING(SEC_TO_TIME(SUM(TIME_TO_SEC(duration))), 1, 5) as duration, COUNT(name) as count").
 		Group("barcode").
-		Scan(&reportItems)
+		Scan(&reportItems).Error; err != nil {
+			status := Status{
+				Status:  StatusFailure,
+				Message: fmt.Sprintf("Error generating aggregated report: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+				Details: err,
+			}
+			ResponseJSON(status, w, http.StatusInternalServerError)
+			return
+		}
 
 	ResponseJSON(reportItems, w, 200)
 }

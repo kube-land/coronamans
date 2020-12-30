@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 import {NgbDate, NgbCalendar, NgbDateParserFormatter} from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/api.service';
+import {Employee, ReportItem} from '../../api.model';
+import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-report',
@@ -9,8 +12,6 @@ import { ApiService } from 'src/app/api.service';
   styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
-
-  ngOnInit() {}
 
   now = new Date()
   fromTime = {hour: this.now.getHours(), minute: this.now.getMinutes()};
@@ -66,14 +67,50 @@ export class ReportComponent implements OnInit {
       new Date(this.toDate.year, this.toDate.month - 1, this.toDate.day, this.toTime.hour, this.toTime.minute),
       this.reportType
     )
-    .subscribe(
-      (res) => {
-        console.log(res)
-      },
-      error => {
-        console.log(error)
-      }
-    );
-
+    this.tempReport = this.report$
   }
+
+  loading$: Observable<boolean>;
+  report$: Observable<ReportItem[]>
+
+  tempReport: Observable<ReportItem[]>
+
+  // Table Messages
+  messages = {
+    emptyMessage: 'No data to display',
+    totalMessage: 'total'
+  }
+
+
+  ngOnInit() {
+    this.loading$ = this.api.reportLoading$
+    this.report$ = this.api.reportItems$
+    this.tempReport = this.api.reportItems$
+  }
+
+  updateFilter(event) {
+    const val = event.target.value.toLowerCase();
+    this.filterAction(val)
+  }
+
+  filterAction(val) {
+    console.log("val", val)
+    console.log(this.tempReport)
+    const temp = this.tempReport?.pipe(
+      map(items => items.filter(function (d) {
+      console.log("ggg", items)
+      return d.name.toLowerCase().indexOf(val) !== -1;
+    })));
+
+    console.log("hhhhgh", temp)
+
+    // update the rows
+    this.report$ = temp;
+  }
+
+  parseDate(date: string) {
+    let d = new Date(date)
+    return `${d.toLocaleString()}`
+  }
+
 }

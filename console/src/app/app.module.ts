@@ -31,6 +31,8 @@ import { BarcodeComponent } from './components/barcode/barcode.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { PrintDirective } from './components/print/print.directive';
 
+import { HttpErrorInterceptor } from './http-error.interceptor';
+
 @NgModule({
   declarations: [
     AppComponent,

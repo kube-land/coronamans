@@ -23,20 +23,10 @@ export class EmployeeAddComponent implements OnInit {
 
   loading = false;
 
-  employeeAddForm = new FormGroup({
-    name: new FormControl('', [
-      Validators.required,
-    ]),
-    title: new FormControl('', [
-      Validators.required,
-    ]),
-  });
-
   createdEmployee: Employee;
   createdEmployeeError: any;
 
-  barcodeImage: string;
-
+  employeeAddForm: FormGroup
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -45,6 +35,14 @@ export class EmployeeAddComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.employeeAddForm = new FormGroup({
+      name: new FormControl(this.createdEmployee?.name, [
+        Validators.required,
+      ]),
+      title: new FormControl(this.createdEmployee?.title, [
+        Validators.required,
+      ]),
+    });
   }
   
   addEmployee(employee: Employee) {
@@ -53,7 +51,6 @@ export class EmployeeAddComponent implements OnInit {
     .subscribe(
       (res) => {
         this.createdEmployee = res
-        this.barcodeImage = `${config.apiUri}/barcode/${res.id}.png`
         this.loading = false
       },
       error => {

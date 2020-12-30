@@ -5,7 +5,8 @@
 <ng-template #loaded>
 
   <div class="modal-header">
-    <h4 class="modal-title">Add Employee</h4>
+    <h4 *ngIf='!createdEmployee' class="modal-title">Add Employee</h4>
+    <h4 *ngIf='createdEmployee' class="modal-title">Employee Details</h4>
     <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -31,9 +32,10 @@
         <!--div class="card-body">
           <img src="{{barcodeImage}}" alt="{{createdEmployee?.id}}" width="256" height="128">
         </div-->
-        <app-barcode bc-value="{{createdEmployee?.id}}"
+        <app-barcode id="barcode"
+          bc-value="{{createdEmployee?.id}}"
           bc-display-value="true"
-          bc-element-type="img"
+          bc-element-type="svg"
           bc-width="4"
           bc-height="200"
           bc-font-size="15"
@@ -43,7 +45,8 @@
     </div>
 
     <div class="modal-footer mt-1">
-      <button [disabled]="!employeeAddForm.valid || createdEmployee" type="submit" class="btn btn-info">Add Employee</button>
+      <button *ngIf='!createdEmployee' [disabled]="!employeeAddForm.valid" type="submit" class="btn btn-info btn-raised">Add Employee</button>
+      <button *ngIf='createdEmployee' type="button" class="font-medium-1 btn btn-success btn-raised" printSectionId="barcode" appPrint>Print Barcode</button> 
       <button type="button" class="font-medium-1 btn btn-danger btn-raised" (click)="activeModal.close('Close click')">Close</button>
     </div>
 

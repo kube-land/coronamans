@@ -1,26 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import * as config from '../../auth_config.json';
+import {Employee, ReportItem} from './api.model';
 
-import {Employee} from './api.model';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
-
-  ping$(): Observable<any> {
-    return this.http.get(`${config.apiUri}/employees`);
-  }
+  constructor(private http: HttpClient, private toastr: ToastrService) {}
 
   getEmployee$(id: string): Observable<any> {
     return this.http.get(`${config.apiUri}/employee/${id}`);
-  }
-
-  getEmployees$(): Observable<Employee[]> {
-    return this.http.get<Employee[]>(`${config.apiUri}/employees`);
   }
 
   logEmployee$(id: string): Observable<any> {
@@ -31,10 +25,44 @@ export class ApiService {
     return this.http.post<Employee>(`${config.apiUri}/employee`, employee, {}); 
   }
 
-  report$(from: Date, to: Date, type: string): Observable<any | String> {
+  deleteEmployee$(id: string): Observable<any> {
+    return this.http.delete(`${config.apiUri}/employee/${id}`);
+  }
+
+  getEmployees$(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${config.apiUri}/employees`);
+  }
+
+  report$(from: Date, to: Date, type: string) {
+
+    this._reportLoading$.next(true)
+
     let params = new HttpParams();
     params = params.append('start', new Date(from.getTime() - (from.getTimezoneOffset() * 60000)).toISOString());
     params = params.append('end', new Date(to.getTime() - (to.getTimezoneOffset() * 60000)).toISOString());
-    return this.http.get<Employee>(`${config.apiUri}/${type}`, {params: params});
+    
+    this.http.get<ReportItem[]>(`${config.apiUri}/${type}`, {params: params}).subscribe(
+      res => {
+        this._reportItems$.next(res)
+        this._reportLoading$.next(false)
+      },
+      error => {
+        this.toastr.error(error.error.message || error.message);
+        this._reportLoading$.next(false)
+      }
+    );
   }
+
+  private _reportLoading$ = new BehaviorSubject<boolean>(false);
+  private _reportItems$ = new BehaviorSubject<ReportItem[]>([]);
+    
+  // Table Messages
+  messages = {
+    emptyMessage: 'No data to display',
+    totalMessage: 'total'
+  }
+
+  get reportLoading$() { return this._reportLoading$.asObservable(); }
+  get reportItems$() { return this._reportItems$.asObservable(); }
+
 }
