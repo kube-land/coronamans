@@ -1,154 +1,151 @@
-
 <section id="employees" class="container mt-5">
   <div class="card">
-
     <div class="card-header">
-            <h4 class="card-title mt-3">Reports</h4>
-            <br>
-            <div class="alert alert-info" role="alert">
-                Please set the datetime range for generating either the historical or the aggregated report!
-            </div>
-            <form class="form-inline">
-                <div class="form-group hidden">
-                    <div class="input-group">
-                        <input name="datepicker"
-                            class="form-control"
-                            ngbDatepicker
-                            #datepicker="ngbDatepicker"
-                            [autoClose]="'outside'"
-                            (dateSelect)="onDateSelection($event)"
-                            [displayMonths]="2"
-                            [dayTemplate]="t"
-                            outsideDays="hidden"
-                            [startDate]="fromDate!"
-                            tabindex="-1">
-                        <ng-template #t let-date let-focused="focused">
-                            <span class="custom-day"
-                                [class.focused]="focused"
-                                [class.range]="isRange(date)"
-                                [class.faded]="isHovered(date) || isInside(date)"
-                                (mouseenter)="hoveredDate = date"
-                                (mouseleave)="hoveredDate = null">
-                            {{ date.day }}
-                            </span>
-                        </ng-template>
-                    </div>
-                </div>
-                <div class="form-group mr-2 fix-hidden">
-                  <div class="input-group">
-                    <input #dpFromDate
-                        class="form-control" placeholder="yyyy-mm-dd"
-                        name="dpFromDate"
-                        [value]="formatter.format(fromDate)"
-                        (input)="fromDate = validateInput(fromDate, dpFromDate.value)">
-                    <div class="input-group-append">
-                        <div class="input-group-text" (click)="datepicker.toggle()">
-                            <i class="fa fa-calendar" style="cursor: pointer;"></i>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group mr-2">
-                  <div class="input-group">
-                    <input #dpToDate
-                        class="form-control" placeholder="yyyy-mm-dd"
-                        name="dpToDate"
-                        [value]="formatter.format(toDate)"
-                        (input)="toDate = validateInput(toDate, dpToDate.value)">
-                    <div class="input-group-append">
-                        <div class="input-group-text" (click)="datepicker.toggle()">
-                            <i class="fa fa-calendar" style="cursor: pointer;"></i>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-            </form>
-            <div class="row">
-                <div class="col-lg-2 col-md-3 col-sm-3">
-                    <ngb-timepicker [(ngModel)]="fromTime"></ngb-timepicker>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-3">
-                    <ngb-timepicker [(ngModel)]="toTime"></ngb-timepicker>
-                </div>
-            </div>
-            <hr/>
-            <div class="row pt-3">
-                <div class="col-lg-3 col-md-5 col-sm-5">
-                    <div class="form-group">
-                        <label for="projectinput5" class="sr-only">Interested in</label>
-                        <select (change)="onSelect($event)" [(ngModel)]="reportType" id="projectinput5" name="interested" class="form-control">
-                            <option value="none" selected="" disabled="">Select Report Type</option>
-                            <option value="historical" >Historical</option>
-                            <option value="aggregate">Aggregated</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <button class="btn btn-info mb-5" (click)="generate()" [disabled]="loading$ | async">
-                      <span *ngIf="loading$ | async" class="spinner-border spinner-border-sm"></span>
-                      Generate Report
-                  </button>
-                </div>
-            </div>
-    </div> 
-
-    <div class="card-body">
-            <div class="card-block border-top-2 border-top-blue-grey border-top-lighten-4">
-                <div>
-
-
-                  
-                  <div class="form-group row">
-                    <div class="col-md-6">
-                      <input class="form-control form-control-md" id="ex1" type="text" placeholder="Search" (keyup)="updateFilter($event)">
-                    </div>
-                    </div>
-
-                  <ngx-datatable class="bootstrap core-bootstrap"
-                    [rows]="report$ | async" 
-                    [columnMode]="'force'" [footerHeight]="30" [footerHeight]="50" [rowHeight]="'auto'"
-                    [scrollbarV]="false" [messages]="{emptyMessage: '', totalMessage: ''}" [limit]="1000"
-                    [scrollbarH]="true">
-
-                    <ngx-datatable-column name="ID" [sortable]="true" prop="barcode">
-                      <ng-template let-row="row" ngx-datatable-cell-template>
-                        <b>{{row.barcode}}</b>
-                      </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column name="Name" [sortable]="true" prop="name">
-                      <ng-template let-row="row" ngx-datatable-cell-template>
-                        <span>{{row.name}}</span>
-                      </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column *ngIf="reportType == 'historical'" name="Login" [sortable]="true" prop="createdAt">
-                      <ng-template let-row="row" ngx-datatable-cell-template>
-                        <span>{{parseDate(row.createdAt)}}</span>
-                      </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column *ngIf="reportType == 'historical'" name="Logout" [sortable]="true" prop="logout">
-                      <ng-template let-row="row" ngx-datatable-cell-template>
-                        <span>{{parseDate(row.logout)}}</span>
-                      </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column [name]="reportType == 'historical' ? 'Duration': 'Total Duration'" [sortable]="true" prop="duration">
-                      <ng-template let-row="row" ngx-datatable-cell-template>
-                        <span>{{row.duration}}</span>
-                      </ng-template>
-                    </ngx-datatable-column>
-
-                    <ngx-datatable-column *ngIf="reportType == 'aggregate'" name="Shifts" [sortable]="true" prop="count">
-                      <ng-template let-row="row" ngx-datatable-cell-template>
-                        <span>{{row.count}}</span>
-                      </ng-template>
-                    </ngx-datatable-column>
-
-                  </ngx-datatable>
-                </div>
+      <h4 class="card-title mt-3">Reports</h4>
+      <br>
+      <div class="alert alert-info" role="alert">
+        Please set the datetime range for generating either the historical or the aggregated report!
+      </div>
+      <form class="form-inline">
+        <div class="form-group hidden">
+          <div class="input-group">
+            <input name="datepicker"
+              class="form-control"
+              ngbDatepicker
+              #datepicker="ngbDatepicker"
+              [autoClose]="'outside'"
+              (dateSelect)="onDateSelection($event)"
+              [displayMonths]="2"
+              [dayTemplate]="t"
+              outsideDays="hidden"
+              [startDate]="fromDate!"
+              tabindex="-1">
+            <ng-template #t let-date let-focused="focused">
+              <span class="custom-day"
+                [class.focused]="focused"
+                [class.range]="isRange(date)"
+                [class.faded]="isHovered(date) || isInside(date)"
+                (mouseenter)="hoveredDate = date"
+                (mouseleave)="hoveredDate = null">
+                {{ date.day }}
+              </span>
+            </ng-template>
+          </div>
+        </div>
+        <div class="form-group mr-2 fix-hidden">
+          <div class="input-group">
+            <input #dpFromDate
+              class="form-control" placeholder="yyyy-mm-dd"
+              name="dpFromDate"
+              [value]="formatter.format(fromDate)"
+              (input)="fromDate = validateInput(fromDate, dpFromDate.value)">
+            <div class="input-group-append">
+              <div class="input-group-text" (click)="datepicker.toggle()">
+                <i class="fa fa-calendar" style="cursor: pointer;"></i>
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mr-2">
+          <div class="input-group">
+            <input #dpToDate
+              class="form-control" placeholder="yyyy-mm-dd"
+              name="dpToDate"
+              [value]="formatter.format(toDate)"
+              (input)="toDate = validateInput(toDate, dpToDate.value)">
+            <div class="input-group-append">
+              <div class="input-group-text" (click)="datepicker.toggle()">
+                <i class="fa fa-calendar" style="cursor: pointer;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-lg-2 col-md-3 col-sm-3">
+          <ngb-timepicker [(ngModel)]="fromTime"></ngb-timepicker>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+          <ngb-timepicker [(ngModel)]="toTime"></ngb-timepicker>
+        </div>
+      </div>
+      <hr/>
+      <div class="row pt-3">
+        <div class="col-lg-3 col-md-5 col-sm-5">
+          <div class="form-group">
+            <label for="projectinput5" class="sr-only">Interested in</label>
+            <select (change)="onSelect($event)" [(ngModel)]="reportType" id="projectinput5" name="interested" class="form-control">
+              <option value="none" selected="" disabled="">Select Report Type</option>
+              <option value="historical" >Historical</option>
+              <option value="aggregate">Aggregated</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <button class="btn btn-info mb-5" (click)="generate()" [disabled]="loading$ | async">
+            <span *ngIf="loading$ | async" class="spinner-border spinner-border-sm"></span>
+            Generate Report
+          </button>
+        </div>
+    </div>        
+    </div> 
+    <div class="card-body">
+      <div class="card-block border-top-2 border-top-blue-grey border-top-lighten-4">
+        <div class="form-group row">
+          <div class="col-md-6">
+            <input class="form-control form-control-md" id="ex1" type="text" placeholder="Search" (keyup)="updateFilter($event)">
+          </div>
+        </div>
+        <ngx-datatable class="bootstrap core-bootstrap"
+          [rows]="report$ | async" 
+          [columnMode]="'force'" [footerHeight]="30" [footerHeight]="50" [rowHeight]="'auto'"
+          [scrollbarV]="false" [messages]="{emptyMessage: '', totalMessage: ''}" [limit]="1000"
+          [scrollbarH]="true">
+
+          <ngx-datatable-column name="ID" [sortable]="true" prop="barcode">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <b>{{row.barcode}}</b>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column name="Name" [sortable]="true" prop="name">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span>{{row.name}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column name="Title" [sortable]="true" prop="title">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span>{{row.title}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column *ngIf="reportType == 'historical'" name="Login" [sortable]="true" prop="createdAt">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span>{{parseDate(row.createdAt)}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column *ngIf="reportType == 'historical'" name="Logout" [sortable]="true" prop="logout">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span>{{parseDate(row.logout)}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column [name]="reportType == 'historical' ? 'Duration': 'Total Duration'" [sortable]="true" prop="duration">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span>{{row.duration}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column *ngIf="reportType == 'aggregate'" name="Shifts" [sortable]="true" prop="count">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <span>{{row.count}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+
+        </ngx-datatable>
+      </div>     
     </div>       
   </div>
 </section>

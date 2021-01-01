@@ -3,7 +3,7 @@ import { ApiService } from 'src/app/api.service';
 
 import { AuthService } from '@auth0/auth0-angular';
 import { DOCUMENT } from '@angular/common';
-
+import { ToastrService } from 'ngx-toastr';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { EmployeeAddComponent } from '../../components/employee-add/employee-add.component';
@@ -34,11 +34,10 @@ export class EmployeeComponent {
     public auth: AuthService,
     private api: ApiService,
     private modalService: NgbModal,
+    private toastr: ToastrService,
     @Inject(DOCUMENT) private doc: Document
   ) {
-
     this.getEmployee()
-
   }
 
   getEmployee() {
@@ -61,6 +60,8 @@ export class EmployeeComponent {
       },
       error => {
         console.log(error)
+        this.toastr.error(error.error.message || error.message);
+        this.loading = false
       }
     );
   }

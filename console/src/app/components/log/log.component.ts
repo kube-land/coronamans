@@ -36,6 +36,7 @@ export class LogComponent implements OnInit {
       (res) => {
         this.employee = res
         this.loading = false
+        this.logInOut() // disable input box in case of success (workaround)
       },
       error => {
         this.error = error

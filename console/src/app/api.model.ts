@@ -10,6 +10,7 @@ export interface Employee {
 export interface Attendance {
     barcode: number;
     name: string;
+    title: string;
     duration: string;
     createdAt: Date;
     logout: Date;
@@ -18,6 +19,7 @@ export interface Attendance {
 export interface ReportItem {
 	barcode: number;
     name: string;
+    title: string;
     duration: string;
     createdAt: Date;
     logout: Date;
