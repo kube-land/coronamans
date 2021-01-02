@@ -1,6 +1,8 @@
 #! /bin/bash
 set -xe
 
+cp -rf conf/coronamans.service /lib/systemd/system/coronamans.service
+cp -rf conf/nginx.conf /etc/nginx/nginx.conf
 go build .
 service coronamans stop
 cp -f coronamans /usr/local/bin/

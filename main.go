@@ -47,7 +47,7 @@ func main() {
 	})
 
 	jwks := "https://coronamans.eu.auth0.com/.well-known/jwks.json"
-	audience := "https://coronamans.pharmatics.io:8443"
+	audience := "https://coronamansapi.pharmatics.io"
 	issuer := "https://coronamans.eu.auth0.com/"
 
 	corsSpec := CORSOpts{
