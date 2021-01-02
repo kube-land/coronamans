@@ -12,6 +12,7 @@ import {Employee} from '../../api.model';
 
 import {parseDate} from '../../util'
 
+import { ConfirmComponent } from '../../components/confirm/confirm.component';
 
 @Component({
   selector: 'app-employee',
@@ -22,8 +23,8 @@ export class EmployeeComponent {
 
   parseDate = parseDate
 
+  employeesMatched: Employee[]
   employees: Employee[]
-  employeesTemp: Employee[]
 
   loading: boolean = true
 
@@ -45,9 +46,9 @@ export class EmployeeComponent {
     .getEmployees$()
     .subscribe(
       (res) => {
-        this.employees = res
+        this.employeesMatched = res
         this.totalEmployees = res.length;
-        this.employeesTemp = [...res];
+        this.employees = [...res];
 
         let logged = 0 
         for (let employee of res) {
@@ -59,7 +60,6 @@ export class EmployeeComponent {
         this.loading = false
       },
       error => {
-        console.log(error)
         this.toastr.error(error.error.message || error.message);
         this.loading = false
       }
@@ -78,13 +78,31 @@ export class EmployeeComponent {
 
   updateFilter(event) {
     const val = event.target.value.toLowerCase();
-    const temp = this.employeesTemp.filter(function (d) {
+    const temp = this.employees.filter(function (d) {
       return d.name.toLowerCase().indexOf(val) !== -1 ||
         d.id.toString().indexOf(val) !== -1 ||
         d.title.toLowerCase().indexOf(val) !== -1;
     });
 
     // update the rows
-    this.employees = temp;
+    this.employeesMatched = temp;
+  }
+
+  deleteEmployee(id: string, name: string)  {
+    const modal = this.modalService.open(ConfirmComponent, { size: 'md', windowClass: 'modal-adaptive' });
+    modal.componentInstance.title = "Delete Employee"
+    modal.componentInstance.message = `Are you sure that you want to delete employee: '${name}'?`
+    modal.result.then((modalRes) => {
+      if (modalRes === "yes") {
+        this.api.deleteEmployee$(id).subscribe(
+          (res) => {
+            this.toastr.success(`Employee '${name}' has been deleted!`);
+            this.getEmployee()
+          },
+          error => {
+            this.toastr.error(error.error.message || error.message);
+        });
+      }
+    })
   }
 }

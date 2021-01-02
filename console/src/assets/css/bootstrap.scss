@@ -8,3 +8,13 @@
 .badge-pill{
     padding: 3px 6px;
 }
+
+.btn-icon {
+    &.round {
+      padding: 0.465rem 0.72rem;
+    }
+}
+
+.round{
+    border-radius: 1.5rem;
+}
