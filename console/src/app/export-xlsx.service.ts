@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { Workbook } from 'exceljs';
 import * as fs from 'file-saver';
 
-declare const ExcelJS: any;
-
 const EXCEL_EXTENSION = '.xlsx';
 
 @Injectable({
@@ -15,7 +13,7 @@ export class ExportXLSXService {
   exportJsonToExcel(title: string, header: Array<string>, data: Array<any>, fileName: string) {
     
     //Create workbook and worksheet
-    const workbook = new ExcelJS.Workbook();
+    const workbook = new Workbook();
     let worksheet = workbook.addWorksheet('Report', {views: [ {state: 'frozen', ySplit: 1} ] } );
     worksheet.fitwidth = true
     let headerRow = worksheet.addRow(header);
