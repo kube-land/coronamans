@@ -19,6 +19,7 @@ import { environment as env } from '../environments/environment';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LogComponent } from './components/log/log.component';
+import { ConfirmComponent } from './components/confirm/confirm.component';
 
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -43,6 +44,7 @@ import { HttpErrorInterceptor } from './http-error.interceptor';
     LoadingComponent,
     EmployeeComponent,
     LogComponent,
+    ConfirmComponent,
     HomeContentComponent,
     EmployeeAddComponent,
     ReportComponent,
