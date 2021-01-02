@@ -77,13 +77,13 @@
             <select (change)="onSelect($event)" [(ngModel)]="reportType" id="projectinput5" name="interested" class="form-control">
               <option value="none" selected="" disabled="">Select Report Type</option>
               <option value="historical" >Historical</option>
-              <option value="aggregate">Aggregated</option>
+              <option value="aggregated">Aggregated</option>
             </select>
           </div>
         </div>
         <div class="col-lg-4">
-          <button class="btn btn-info mb-5" (click)="generate()" [disabled]="loading$ | async">
-            <span *ngIf="loading$ | async" class="spinner-border spinner-border-sm"></span>
+          <button class="btn btn-info mb-5" (click)="generate()" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
             Generate Report
           </button>
         </div>
@@ -91,13 +91,22 @@
     </div> 
     <div class="card-body">
       <div class="card-block border-top-2 border-top-blue-grey border-top-lighten-4">
-        <div class="form-group row">
-          <div class="col-md-6">
-            <input class="form-control form-control-md" id="ex1" type="text" placeholder="Search" (keyup)="updateFilter($event)">
+
+        <div class="row pt-3">
+          <div class="col-lg-3 col-md-5 col-sm-5">
+            <div class="form-group">
+              <input [(ngModel)]="filter" class="form-control form-control-md" id="ex1" type="text" placeholder="Search" (keyup)="updateFilter($event)">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <button [disabled]="report?.length == 0" class="btn btn-success" (click)="exportXLSX()">
+              Export
+            </button>
           </div>
         </div>
+
         <ngx-datatable class="bootstrap core-bootstrap"
-          [rows]="report$ | async" 
+          [rows]="report"
           [columnMode]="'force'" [footerHeight]="30" [footerHeight]="50" [rowHeight]="'auto'"
           [scrollbarV]="false" [messages]="{emptyMessage: '', totalMessage: ''}" [limit]="1000"
           [scrollbarH]="true">
@@ -138,7 +147,7 @@
             </ng-template>
           </ngx-datatable-column>
 
-          <ngx-datatable-column *ngIf="reportType == 'aggregate'" name="Shifts" [sortable]="true" prop="count">
+          <ngx-datatable-column *ngIf="reportType == 'aggregated'" name="Shifts" [sortable]="true" prop="count">
             <ng-template let-row="row" ngx-datatable-cell-template>
               <span>{{row.count}}</span>
             </ng-template>

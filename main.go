@@ -71,7 +71,7 @@ func main() {
 
 	// reports
 	router.GET("/historical", chain.Then(Historical))
-	router.GET("/aggregate", chain.Then(Aggregate))
+	router.GET("/aggregated", chain.Then(Aggregate))
 
 	log.Printf("start web server :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))

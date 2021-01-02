@@ -33,6 +33,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { PrintDirective } from './components/print/print.directive';
 
 import { HttpErrorInterceptor } from './http-error.interceptor';
+import { ExportXLSXService } from './export-xlsx.service';
 
 @NgModule({
   declarations: [
@@ -91,6 +92,7 @@ import { HttpErrorInterceptor } from './http-error.interceptor';
         },
       },
     },
+    ExportXLSXService,
   ],
   bootstrap: [AppComponent],
 })

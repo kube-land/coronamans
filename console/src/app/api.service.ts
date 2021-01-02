@@ -40,7 +40,7 @@ export class ApiService {
     let params = new HttpParams();
     params = params.append('start', new Date(from.getTime() - (from.getTimezoneOffset() * 60000)).toISOString());
     params = params.append('end', new Date(to.getTime() - (to.getTimezoneOffset() * 60000)).toISOString());
-    
+
     this.http.get<ReportItem[]>(`${config.apiUri}/${type}`, {params: params}).subscribe(
       res => {
         this._reportItems$.next(res)
@@ -51,6 +51,17 @@ export class ApiService {
         this._reportLoading$.next(false)
       }
     );
+  }
+
+  report(from: Date, to: Date, type: string): Observable<ReportItem[]> {
+
+    this._reportLoading$.next(true)
+
+    let params = new HttpParams();
+    params = params.append('start', new Date(from.getTime() - (from.getTimezoneOffset() * 60000)).toISOString());
+    params = params.append('end', new Date(to.getTime() - (to.getTimezoneOffset() * 60000)).toISOString());
+
+    return this.http.get<ReportItem[]>(`${config.apiUri}/${type}`, {params: params})
   }
 
   private _reportLoading$ = new BehaviorSubject<boolean>(false);
