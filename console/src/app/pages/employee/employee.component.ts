@@ -76,6 +76,13 @@ export class EmployeeComponent {
     modal.componentInstance.createdEmployee = employee
   }
 
+  updateEmployee(employee: Employee) {
+    const modal = this.modalService.open(EmployeeAddComponent, { size: 'md', windowClass: 'modal-adaptive' });
+    modal.componentInstance.createdEmployee = employee
+    modal.componentInstance.update = true
+    modal.result.then(() => (this.getEmployee()))
+  }
+
   updateFilter(event) {
     const val = event.target.value.toLowerCase();
     const temp = this.employees.filter(function (d) {

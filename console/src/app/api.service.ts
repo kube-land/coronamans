@@ -25,6 +25,10 @@ export class ApiService {
     return this.http.post<Employee>(`${config.apiUri}/employee`, employee, {}); 
   }
 
+  updateEmployee$(employee: Employee, id: string): Observable<Employee> {
+    return this.http.put<Employee>(`${config.apiUri}/employee/${id}`, employee, {});
+  }
+
   deleteEmployee$(id: string): Observable<any> {
     return this.http.delete(`${config.apiUri}/employee/${id}`);
   }

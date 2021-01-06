@@ -16,11 +16,11 @@
     <div class="modal-body mt-3">
       <div class="form-group">
         <label for="name">Name:</label>
-        <input [attr.disabled]="createdEmployee ? '' : null" formControlName="name" class="form-control" type="text" id="name" placeholder="Employee name" autofocus>
+        <input [attr.disabled]="createdEmployee && !update ? '' : null" formControlName="name" class="form-control" type="text" id="name" placeholder="Employee name" autofocus>
       </div>
       <div class="form-group">
         <label for="title">Title:</label>
-        <input [attr.disabled]="createdEmployee ? '' : null" formControlName="title" class="form-control" type="text" id="title" placeholder="Employee title" autofocus>
+        <input [attr.disabled]="createdEmployee && !update ? '' : null" formControlName="title" class="form-control" type="text" id="title" placeholder="Employee title" autofocus>
       </div>
       <p>
 
@@ -45,6 +45,7 @@
     </div>
 
     <div class="modal-footer mt-1">
+      <button *ngIf='update' [disabled]="!employeeAddForm.dirty || !employeeAddForm.valid" type="button" class="btn btn-info btn-raised" (click)="onUpdate()">Save</button>
       <button *ngIf='!createdEmployee' [disabled]="!employeeAddForm.valid" type="submit" class="btn btn-info btn-raised">Add Employee</button>
       <button *ngIf='createdEmployee' type="button" class="font-medium-1 btn btn-success btn-raised" printSectionId="barcode" appPrint>Print Barcode</button> 
       <button type="button" class="font-medium-1 btn btn-danger btn-raised" (click)="activeModal.close('Close click')">Close</button>

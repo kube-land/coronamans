@@ -21,6 +21,25 @@ type Employee struct {
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
+func (e Employee) validate() *Status {
+	if e.Name == "" {
+		return &Status{
+			Status:  StatusFailure,
+			Message: "Missing employee name",
+			Code:    http.StatusBadRequest,
+		}
+	}
+
+	if e.Title == "" {
+		return &Status{
+			Status:  StatusFailure,
+			Message: "Missing employee title",
+			Code:    http.StatusBadRequest,
+		}
+	}
+	return nil
+}
+
 func getNewEmployeeID() uint64 {
 	var employeeID uint64
 	row := db.Raw("SELECT NEXTVAL(employee_serial)").Row()
@@ -43,22 +62,7 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 
-	if e.Name == "" {
-		status := Status{
-			Status:  StatusFailure,
-			Message: "Missing employee name",
-			Code:    http.StatusBadRequest,
-		}
-		ResponseJSON(status, w, http.StatusBadRequest)
-		return
-	}
-
-	if e.Title == "" {
-		status := Status{
-			Status:  StatusFailure,
-			Message: "Missing employee title",
-			Code:    http.StatusBadRequest,
-		}
+	if status := e.validate(); status != nil {
 		ResponseJSON(status, w, http.StatusBadRequest)
 		return
 	}
@@ -89,6 +93,80 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 	ResponseJSON(e, w, 200)
+}
+
+func UpdateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	barcode := ps.ByName("barcode")
+	var employee Employee
+
+	if err := db.First(&employee, "id = ?", barcode).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			status := Status{
+				Status:  StatusFailure,
+				Message: "Employee not found!",
+				Code:    http.StatusNotFound,
+			}
+			ResponseJSON(status, w, http.StatusNotFound)
+			return
+		} else {
+			status := Status{
+				Status:  StatusFailure,
+				Message: fmt.Sprintf("Couldn't fetch employee: %v", err.Error()),
+				Code:    http.StatusInternalServerError,
+				Details: err,
+			}
+			ResponseJSON(status, w, http.StatusInternalServerError)
+			return
+		}
+	}
+
+	var updateEmployee Employee
+
+	err := json.NewDecoder(r.Body).Decode(&updateEmployee)
+	if err != nil {
+		status := Status{
+			Status:  StatusFailure,
+			Message: "Invalid employee request",
+			Code:    http.StatusBadRequest,
+			Details: updateEmployee,
+		}
+		ResponseJSON(status, w, http.StatusBadRequest)
+		return
+	}
+
+	// update struct
+	employee.Name = updateEmployee.Name
+	employee.Title = updateEmployee.Title
+
+	if status := employee.validate(); status != nil {
+		ResponseJSON(status, w, http.StatusBadRequest)
+		return
+	}
+
+	if err := db.Save(&employee).Error; err != nil {
+		if driverErr, ok := err.(*mysql.MySQLError); ok {
+			if driverErr.Number == 1062 {
+				status := Status{
+					Status:  StatusFailure,
+					Message: fmt.Sprintf("Employee with name '%s' already exists", updateEmployee.Name),
+					Code:    http.StatusInternalServerError,
+					Details: err,
+				}
+				ResponseJSON(status, w, http.StatusInternalServerError)
+				return
+			}
+		}
+		status := Status{
+			Status:  StatusFailure,
+			Message: fmt.Sprintf("Couldn't update employee: %v", err.Error()),
+			Code:    http.StatusInternalServerError,
+			Details: err,
+		}
+		ResponseJSON(status, w, http.StatusInternalServerError)
+		return
+	}
+	ResponseJSON(employee, w, 200)
 }
 
 func GetEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

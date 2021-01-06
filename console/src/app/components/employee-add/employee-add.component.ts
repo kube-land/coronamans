@@ -27,6 +27,7 @@ export class EmployeeAddComponent implements OnInit {
   createdEmployeeError: any;
 
   employeeAddForm: FormGroup
+  update: boolean = false;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -67,11 +68,34 @@ export class EmployeeAddComponent implements OnInit {
     this.addEmployee(employee)
   }
 
+  onUpdate() {
+    this.createdEmployeeError = null
+    this.loading = true
+    var employee: Employee = this.employeeAddForm.value
+    this.updateEmployee(employee)
+  }
+
   totalText(id: string, name: string) {
     let total = `${id} ${name}`
     if (total.length > 22) {
       total = total.slice(0, 21) + "."
     }
     return total
+  }
+
+  updateEmployee(employee: Employee) {
+    this.api
+    .updateEmployee$(employee, this.createdEmployee.id.toString())
+    .subscribe(
+      (res) => {
+        this.createdEmployee = res
+        this.employeeAddForm.markAsPristine()
+        this.loading = false
+      },
+      error => {
+        this.createdEmployeeError = error.error.message || error.message
+        this.loading = false
+      }
+    );
   }
 }

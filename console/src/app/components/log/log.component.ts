@@ -36,7 +36,9 @@ export class LogComponent implements OnInit {
       (res) => {
         this.employee = res
         this.loading = false
-        this.logInOut() // disable input box in case of success (workaround)
+        // disable input box in case of success (workaround).
+        // If this line is removed (yes/no) wizard will be enabled
+        this.logInOut()
       },
       error => {
         this.error = error
@@ -61,6 +63,8 @@ export class LogComponent implements OnInit {
       },
       error => {
         this.toastr.error(error.error.message || error.message);
+        this.error = error
+        this.loading = false
       }
     );
     this.activeModal.close()

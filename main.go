@@ -63,6 +63,7 @@ func main() {
 	router.GET("/barcode/:image", GetBarcodeImage)
 
 	router.POST("/employee", chain.Then(CreateEmployee))
+	router.PUT("/employee/:barcode", chain.Then(UpdateEmployee))
 	router.GET("/employee/:barcode", chain.Then(GetEmployee))
 	router.GET("/employees", chain.Then(GetEmployees))
 	router.DELETE("/employee/:barcode", chain.Then(DeleteEmployee))
