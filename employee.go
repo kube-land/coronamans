@@ -144,7 +144,10 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 
-	if err := db.Save(&employee).Error; err != nil {
+	tx := db.Begin()
+
+	if err := tx.Save(&employee).Error; err != nil {
+		tx.Rollback()
 		if driverErr, ok := err.(*mysql.MySQLError); ok {
 			if driverErr.Number == 1062 {
 				status := Status{
@@ -166,6 +169,30 @@ func UpdateEmployee(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		ResponseJSON(status, w, http.StatusInternalServerError)
 		return
 	}
+
+	if err := tx.Model(&Attendance{}).Where("barcode = ?", employee.ID).Updates(Attendance{Name: employee.Name, Title: employee.Title}).Error; err != nil {
+		tx.Rollback()
+		status := Status{
+			Status:  StatusFailure,
+			Message: fmt.Sprintf("Couldn't update employee attendance: %v", err.Error()),
+			Code:    http.StatusInternalServerError,
+			Details: err,
+		}
+		ResponseJSON(status, w, http.StatusInternalServerError)
+		return
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		status := Status{
+			Status:  StatusFailure,
+			Message: fmt.Sprintf("Couldn't update employee and his attendance: %v", err.Error()),
+			Code:    http.StatusInternalServerError,
+			Details: err,
+		}
+		ResponseJSON(status, w, http.StatusInternalServerError)
+		return
+	}
+
 	ResponseJSON(employee, w, 200)
 }
 
