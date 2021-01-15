@@ -43,6 +43,7 @@ export class LogComponent implements OnInit {
       error => {
         this.error = error
         this.loading = false
+        this.playAudio("error")
       }
     );
   }
@@ -57,16 +58,26 @@ export class LogComponent implements OnInit {
         }
         if (res.body?.duration == 0) {
           this.toastr.success(`${res.body.name} is logged in`);
+          this.playAudio("login")
         } else {
           this.toastr.warning(`${res.body.name} is logged out`);
+          this.playAudio("logout")
         }
       },
       error => {
         this.toastr.error(error.error.message || error.message);
         this.error = error
         this.loading = false
+        this.playAudio("error")
       }
     );
     this.activeModal.close()
+  }
+
+  playAudio(type: string) {
+    let audio = new Audio();
+    audio.src = `../../assets/audio/${type}.mp3`;
+    audio.load();
+    audio.play();
   }
 }
