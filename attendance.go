@@ -3,10 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
+	"gorm.io/gorm"
 )
 
 type Attendance struct {
@@ -76,17 +77,17 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	} else { // in shift
 		now := time.Now()
 		attendance.Logout = &now
-		duration := fmtDuration(attendance.Logout.Sub(*attendance.CreatedAt))
+		duration := attendance.Logout.Sub(*attendance.CreatedAt)
 
 		employee.LoggedIn = false
 		db.Save(&employee)
 
-		if duration == "00:00" { // undo if logged in in by mistake
+		if duration < time.Duration(15*time.Minute) { // undo if logged in in by mistake
 			db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Delete(&attendance)
 			w.WriteHeader(204)
 			return
 		} else { // log out the user
-			attendance.Duration = duration
+			attendance.Duration = fmtDuration(duration)
 			db.Model(&attendance).Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Updates(attendance)
 		}
 	}
