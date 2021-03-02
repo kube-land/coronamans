@@ -79,14 +79,13 @@ func LogInOut(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		attendance.Logout = &now
 		duration := attendance.Logout.Sub(*attendance.CreatedAt)
 
-		employee.LoggedIn = false
-		db.Save(&employee)
-
-		if duration < time.Duration(15*time.Minute) { // undo if logged in in by mistake
-			db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Delete(&attendance)
+		if duration < time.Duration(15*time.Minute) { // do nothing it is mistake
+			//db.Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Delete(&attendance)
 			w.WriteHeader(204)
 			return
 		} else { // log out the user
+			employee.LoggedIn = false
+			db.Save(&employee)
 			attendance.Duration = fmtDuration(duration)
 			db.Model(&attendance).Where(&Attendance{Barcode: employee.ID, Duration: "0"}).Updates(attendance)
 		}
